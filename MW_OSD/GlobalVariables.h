@@ -93,6 +93,50 @@
 //#define SONAR         16//0b00010000
 
 
+/********************       VTX      *********************/
+#ifdef IMPULSERC_VTX
+
+#ifdef VTX_REGION_UNRESTRICTED
+
+  #define VTX_DEFAULT_CHANNEL                 0
+  #define VTX_DEFAULT_BAND                    3
+  
+  #define VTX_BAND_COUNT                      5
+  #define VTX_CHANNEL_COUNT                   8
+  #define VTX_POWER_COUNT                     3
+  
+  const PROGMEM uint16_t vtx_frequencies[VTX_BAND_COUNT][VTX_CHANNEL_COUNT] = {
+    { 5865, 5845, 5825, 5805, 5785, 5765, 5745, 5725 }, //A
+    { 5733, 5752, 5771, 5790, 5809, 5828, 5847, 5866 }, //B
+    { 5705, 5685, 5665, 5645, 5885, 5905, 5925, 5945 }, //E
+    { 5740, 5760, 5780, 5800, 5820, 5840, 5860, 5880 }, //F
+    { 5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917 }  //R
+  };
+  
+#elif defined(VTX_REGION_AUSTRALIA)
+
+  #define VTX_DEFAULT_CHANNEL                 0
+  #define VTX_DEFAULT_BAND                    2
+  
+  #define VTX_BAND_COUNT                      4
+  #define VTX_CHANNEL_COUNT                   8
+  #define VTX_POWER_COUNT                     1
+  
+  const PROGMEM uint16_t vtx_frequencies[VTX_BAND_COUNT][VTX_CHANNEL_COUNT] = {
+    { 5865, 5845, 5825, 5805, 5785, 5765, 5745, 5725 }, //A
+    { 5733, 5752, 5771, 5790, 5809, 5828, 5847, 5866 }, //B
+    { 5740, 5760, 5780, 5800, 5820, 5840, 5860, 5860 }, //F
+    { 5732, 5732, 5732, 5769, 5806, 5843, 5843, 5843 }  //R
+  };
+#endif
+
+#define VTX_STICK_CMD_DELAY                   2
+uint8_t vtxPower=0;
+uint8_t vtxBand=VTX_DEFAULT_BAND;
+uint8_t vtxChannel=VTX_DEFAULT_CHANNEL;
+
+#endif
+
 //General use variables
 struct {
   uint8_t tenthSec;
@@ -261,6 +305,11 @@ enum Setting_ {
   S_CS7,
   S_CS8,
   S_CS9,
+#ifdef IMPULSERC_VTX
+  S_VTX_POWER,
+  S_VTX_BAND,
+  S_VTX_CHANNEL,
+#endif
   // EEPROM_SETTINGS must be last!
   EEPROM_SETTINGS
 };
@@ -350,6 +399,11 @@ MWOSDVER,   // used for check              0
 0x20,   // S_CS7,
 0x20,   // S_CS8,
 0x20,   // S_CS9,
+#ifdef IMPULSERC_VTX
+0,      // S_VTX_POWER,
+VTX_DEFAULT_BAND,      // S_VTX_BAND,
+VTX_DEFAULT_CHANNEL,      // S_VTX_CHANNEL,
+#endif
 
 };
 
@@ -851,6 +905,21 @@ const char configMsg100[] PROGMEM = "ADVANCE TUNING";
 const char configMsg101[] PROGMEM = "PROFILE";
 const char configMsg102[] PROGMEM = "PID CONTROLLER";
 const char configMsg103[] PROGMEM = "LOOPTIME";
+#ifdef MENU11
+//-----------------------------------------------------------Page11
+const char configMsg110[] PROGMEM = "VTX CONFIG";
+const char configMsg111[] PROGMEM = "POWER";
+const char configMsg1110[] PROGMEM = "25";
+const char configMsg1111[] PROGMEM = "200";
+const char configMsg1112[] PROGMEM = "500";
+const char configMsg112[] PROGMEM = "BAND";
+const char configMsg1120[] PROGMEM = "A";
+const char configMsg1121[] PROGMEM = "B";
+const char configMsg1122[] PROGMEM = "E";
+const char configMsg1123[] PROGMEM = "F";
+const char configMsg1124[] PROGMEM = "R";
+const char configMsg113[] PROGMEM = "CHANNEL";
+#endif
 
 // POSITION OF EACH CHARACTER OR LOGO IN THE MAX7456
 const unsigned char speedUnitAdd[2] ={
@@ -955,6 +1024,49 @@ const PROGMEM char * const menu_choice_ref[] =
   configMsg731,
   configMsg730,
 };
+
+#ifdef MENU11
+#ifdef VTX_REGION_UNRESTRICTED
+  // Menu selections
+  const PROGMEM char * const menu_choice_power[] =
+  {   
+    configMsg1110,
+    configMsg1111,
+    configMsg1112
+  };
+  // Menu selections
+  const PROGMEM char * const menu_choice_band[] =
+  {   
+    configMsg1120,
+    configMsg1121,
+    configMsg1122,
+    configMsg1123,
+    configMsg1124
+  };
+#elif defined(VTX_REGION_AUSTRALIA)
+  // Menu selections
+  const PROGMEM char * const menu_choice_power[] =
+  {   
+    configMsg1110
+  };
+  // Menu selections
+  const PROGMEM char * const menu_choice_band[] =
+  {   
+    configMsg1120,
+    configMsg1121,
+    configMsg1123,
+    configMsg1124
+  };
+#endif
+
+const PROGMEM char * const menu_vtx[] = 
+{   
+  configMsg111,
+  configMsg112,
+  configMsg113,
+};
+
+#endif
 
 // Menu
 //PROGMEM const char *menu_stats_item[] =
@@ -1122,6 +1234,9 @@ const PROGMEM char * const menutitle_item[] =
 #endif
 #ifdef MENU10
   configMsg100,
+#endif
+#ifdef MENU11
+  configMsg110,
 #endif
 };
 

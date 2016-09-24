@@ -545,7 +545,41 @@ void handleRawRC() {
 
   if(!waitStick)
   {
-    if((MwRcData[PITCHSTICK]>MAXSTICK)&&(MwRcData[YAWSTICK]>MAXSTICK)&&(MwRcData[THROTTLESTICK]>MINSTICK)){
+#ifdef IMPULSERC_VTX
+    if (MwRcData[THROTTLESTICK]>MAXSTICK && MwRcData[PITCHSTICK] > 1300 && MwRcData[PITCHSTICK] < 1700 && !configMode && !armed && allSec>VTX_STICK_CMD_DELAY){
+      
+      if (MwRcData[YAWSTICK]>MAXSTICK && MwRcData[ROLLSTICK]>MAXSTICK) { //Increase channel
+        Settings[S_VTX_CHANNEL] = constrain(Settings[S_VTX_CHANNEL]+1, 0, VTX_CHANNEL_COUNT - 1);
+        vtx_flash_led(Settings[S_VTX_CHANNEL] + 1);
+      }
+      if (MwRcData[YAWSTICK]>MAXSTICK && MwRcData[ROLLSTICK]<MINSTICK) { //Decrease channel
+        Settings[S_VTX_CHANNEL] = constrain(Settings[S_VTX_CHANNEL]-1, 0, VTX_CHANNEL_COUNT - 1);
+        vtx_flash_led(Settings[S_VTX_CHANNEL] + 1);
+      }
+      if (MwRcData[YAWSTICK]<MINSTICK && MwRcData[ROLLSTICK]>MAXSTICK) { //Increase band
+        Settings[S_VTX_BAND] = constrain(Settings[S_VTX_BAND]+1, 0, VTX_BAND_COUNT - 1);
+        vtx_flash_led(Settings[S_VTX_BAND] + 1);
+      }
+      if (MwRcData[YAWSTICK]<MINSTICK && MwRcData[ROLLSTICK]<MINSTICK) { //Decrease band
+        Settings[S_VTX_BAND] = constrain(Settings[S_VTX_BAND]-1, 0, VTX_BAND_COUNT - 1);
+        vtx_flash_led(Settings[S_VTX_BAND] + 1);
+      }
+      
+      if (vtxBand != Settings[S_VTX_BAND] || vtxChannel != Settings[S_VTX_CHANNEL])
+      {
+        EEPROM.write(S_VTX_BAND, Settings[S_VTX_BAND]);
+        EEPROM.write(S_VTX_CHANNEL, Settings[S_VTX_CHANNEL]);
+        
+        vtxBand = Settings[S_VTX_BAND];
+        vtxChannel = Settings[S_VTX_CHANNEL];
+        vtx_set_frequency(vtxBand, vtxChannel);
+        
+        waitStick = 1;
+      }
+    }
+#endif
+    
+    if((MwRcData[PITCHSTICK]>MAXSTICK)&&(MwRcData[YAWSTICK]>MAXSTICK)&&(MwRcData[THROTTLESTICK]>1300) && (MwRcData[THROTTLESTICK]<1700)){
       if (!configMode&&(allSec>5)&&!armed){
           // Enter config mode using stick combination
           waitStick =  2;	// Sticks must return to center before continue!
@@ -781,8 +815,40 @@ void serialMenuCommon()
         }        
   #endif
 #endif  
-	if((ROW==10)&&(COL==1)) configExit();
-	if((ROW==10)&&(COL==2)) configSave();
+#ifdef MENU11
+  if(configPage == MENU11 && COL == 3) {
+    if(ROW==1)
+      Settings[S_VTX_POWER] = constrain(Settings[S_VTX_POWER]+menudir, 0, VTX_POWER_COUNT - 1);
+    if(ROW==2)
+      Settings[S_VTX_BAND] = constrain(Settings[S_VTX_BAND]+menudir, 0, VTX_BAND_COUNT - 1);
+    if(ROW==3)
+      Settings[S_VTX_CHANNEL] = constrain(Settings[S_VTX_CHANNEL]+menudir, 0, VTX_CHANNEL_COUNT - 1);
+  };
+#endif
+#ifdef IMPULSERC_VTX
+  if((ROW==10)&&(COL==1)) {
+    Settings[S_VTX_POWER] = vtxPower;
+    Settings[S_VTX_BAND] = vtxBand;
+    Settings[S_VTX_CHANNEL] = vtxChannel;
+    
+	  configExit();
+  }
+  if((ROW==10)&&(COL==2)) {
+
+    vtxPower = Settings[S_VTX_POWER];
+    if (vtxBand != Settings[S_VTX_BAND] || vtxChannel != Settings[S_VTX_CHANNEL])
+    {
+      vtxBand = Settings[S_VTX_BAND];
+      vtxChannel = Settings[S_VTX_CHANNEL];
+      vtx_set_frequency(vtxBand, vtxChannel);
+    }
+  
+	  configSave();
+  }
+#else
+  if((ROW==10)&&(COL==1)) configExit();
+  if((ROW==10)&&(COL==2)) configSave();
+#endif
 }
 
 void serialMSPreceive(uint8_t loops)

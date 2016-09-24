@@ -119,6 +119,9 @@ boolean ledstatus=HIGH;
 //------------------------------------------------------------------------
 void setup()
 {
+#ifdef IMPULSERC_VTX
+  vtx_init();
+#endif
 
   Serial.begin(BAUDRATE);
 //---- override UBRR with MWC settings
@@ -141,16 +144,31 @@ void setup()
 #endif  
   checkEEPROM();
   readEEPROM();
+
+#ifdef IMPULSERC_VTX
+  vtxPower=Settings[S_VTX_POWER];
+  vtxBand=Settings[S_VTX_BAND];
+  vtxChannel=Settings[S_VTX_CHANNEL];
+  vtx_set_frequency(vtxBand, vtxChannel);
+  vtx_flash_led(5);
+#endif
   
   #ifndef STARTUPDELAY
     #define STARTUPDELAY 500
   #endif
   delay(STARTUPDELAY);
- 
+
+#ifdef IMPULSERC_VTX
+  //Ignore setting because this is critical to making sure we can detect the
+  //VTX power jumper being installed. If we aren't using 5V ref there is
+  //the chance we will power up on wrong frequency.
+  analogReference(DEFAULT);
+#else
   if (Settings[S_VREFERENCE])
     analogReference(DEFAULT);
   else
     analogReference(INTERNAL);
+#endif
 
   MAX7456Setup();
   #if defined GPSOSD
@@ -259,6 +277,10 @@ void loop()
 
   //---------------  Start Timed Service Routines  ---------------------------------------
   unsigned long currentMillis = millis();
+
+#ifdef IMPULSERC_VTX
+  vtx_process_state(currentMillis, vtxBand, vtxChannel);
+#endif
 
 #ifdef MSP_SPEED_HIGH
   if((currentMillis - previous_millis_sync) >= sync_speed_cycle)  // (Executed > NTSC/PAL hz 33ms)
@@ -518,6 +540,10 @@ void loop()
   if(timer.halfSec >= 5) {
     timer.halfSec = 0;
     timer.Blink2hz =! timer.Blink2hz;
+
+#ifdef IMPULSERC_VTX
+    vtx_set_power(armed ? vtxPower : 0);
+#endif
   }
 
   if(millis() > timer.seconds+1000)     // this execute 1 time a second

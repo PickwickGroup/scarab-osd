@@ -7,6 +7,7 @@
 //#define WITESPYV1                 // Uncomment this if using Witespy V1.1 OSD, select this to correct for both swapped bat1/bat 2 and to also use alternative resistors / pinouts.  
 //#define WITESPYMICRO              // Uncomment this if using Witespy Micro Minim OSD, select this to correct for swapped bat1/bat 2.  
 //#define RUSHDUINO                 // Uncomment this if using Rushduino
+//#define IMPULSERC_VTX             // Uncomment this if using an ImpulseRC integrated OSD/VTX
 
 // NOTE-some of the popular RTFQ/Witespy boards have swapped bat1/bat2 pins and alternative voltage measuring resistors
 // If having difficulties, first select default MINIMOSD as above, then use the following to correct: 
@@ -254,6 +255,10 @@
 #define LOWTHROTTLE  1100                // Minimum recognised value for throttle
 
 
+/********************           VTX settings           *********************/
+//Choose ONLY ONE option:
+#define VTX_REGION_UNRESTRICTED                // Enable for all 40 channels
+//#define VTX_REGION_AUSTRALIA                   // Enable for AU legal channels and power level only
 
 
 

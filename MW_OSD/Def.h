@@ -72,7 +72,12 @@
 //  #define MENU8  X //GPS TIME
   #define MENU9  8 //ALARMS
   #define MENU10 9//PROFILE+PID CONTROLLER
-  #define MAXPAGE MENU10  
+#ifdef IMPULSERC_VTX
+  #define MENU11 10//VTX
+  #define MAXPAGE MENU11  
+#else
+  #define MAXPAGE MENU10
+#endif
 #endif
 
 #if defined CLEANFLIGHT190
@@ -284,7 +289,7 @@
 
 
 /********************  OSD HARDWARE rule definitions  *********************/
-#ifdef RUSHDUINO                     
+#if defined(RUSHDUINO) || defined(IMPULSERC_VTX)
     # define MAX7456SELECT 10        // ss 
     # define MAX7456RESET  9         // RESET
 #else                                  
