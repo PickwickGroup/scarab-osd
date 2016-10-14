@@ -417,6 +417,9 @@ String[] ConfigNames = {
   "S_CS7",
   "S_CS8",
   "S_CS9",
+  "VTX Power",
+  "VTX Band",
+  "VTX Channel",
 // 16 bit after here  
   "S16_AMPMAX",
   "Amps zero",
@@ -504,6 +507,9 @@ String[] ConfigHelp = {
   "S_CS7",
   "S_CS8",
   "S_CS9",
+  "VTX Power",
+  "VTX Band",
+  "VTX Channel",
 // 16 bit after here
   "S16_AMPMAX",
   "Amps zero",
@@ -612,6 +618,9 @@ int[] ConfigRanges = {
  255,
  255,
  255,
+ 3,
+ 5,
+ 8,
  1023,  //"S16_AMPMAX",
  1023,  //"S16_AMPZERO",
  9999,  //"S16_AMPDIVIDERRATIO",
@@ -899,6 +908,10 @@ CreateItem(GetSetting("S_UNUSED_6"), 5, 5*17, G_EEPROM);
 CreateItem(GetSetting("S16_AMPMAX"),  5,0, G_EEPROM);
 CreateItem(GetSetting("S16_SPARE1"),  5,0, G_EEPROM);
 CreateItem(GetSetting("S16_SPARE2"),  5,0, G_EEPROM);
+
+CreateItem(GetSetting("S_VTX_POWER"),  5,0, G_EEPROM);
+CreateItem(GetSetting("S_VTX_BAND"),  5,0, G_EEPROM);
+CreateItem(GetSetting("S_VTX_CHANNEL"),  5,0, G_EEPROM);
 
 
 // RSSI  ---------------------------------------------------------------------------
